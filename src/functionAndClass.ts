@@ -8,14 +8,14 @@ const foo2: (name: string) => number = (name) => {
   return name.length
 }
 
-// 两种形式都是表达 这个函数进行了返回操作,但没有返回实际的值
-// 返回undefined
+// void - 两种形式都是表达 这个函数进行了返回操作,但没有返回实际的值
 function bar1(): void {
+  // 返回undefined
   return
 }
 
-// 返回undefined
 function bar2(): undefined {
+  // 返回undefined
   return
 }
 
