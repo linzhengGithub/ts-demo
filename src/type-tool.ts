@@ -52,7 +52,7 @@ interface AllStringTypes {
   [key: string]: boolean;
 }
 // obj[599] 和 obj['599'] 的效果是一致的
-const xxxxx:AllStringTypes = {
+const xxxxx: AllStringTypes = {
   name: true,
   age: true,
   x: true,
@@ -70,7 +70,7 @@ interface Foo {
 type FooKeys = keyof Foo & {}; // "linbudu" | 599
 
 // keyof操作符: 它可以将对象中的所有键转换为对应字面量类型，然后再组合成 联合类型 ps:数字类型的键名还是数字类型字面量
-const ag:FooKeys = 599
+const ag: FooKeys = 599
 
 //  - 索引类型访问
 // 通过 obj[expression] 的方式来动态访问一个对象属性
@@ -92,3 +92,48 @@ type Clone<T> = {
 }
 
 type CloneTarget = Clone<FooObj>
+
+// 类型查询
+// 操作符: typeof 返回一个ts类型 "string" / "number" / "object" / "undefined" 等值
+const isStr = 'isString'
+const isBoolean = false
+const isBooleanFn = (name: string) => { return name.length > 5 }
+
+type Str = typeof isStr
+type blean = typeof isBoolean
+type func = typeof isBooleanFn // boolean
+// ReturnType 工具类型 - 它会返回一个函数类型中返回值位置的类型
+type FuncReturnType = ReturnType<typeof isBooleanFn>;
+
+// 类型守卫: 类型判断 - is
+// xxx is string - 类似于类型断言,但比其更宽容
+export type Falsy = false | "" | 0 | null | undefined;
+
+export const isFalsy = (val: unknown): val is Falsy => !val;
+
+// 不包括不常用的 symbol 和 bigint
+export type Primitive = string | number | boolean | undefined;
+
+export const isPrimitive = (val: unknown): val is Primitive => ['string', 'number', 'boolean' , 'undefined'].includes(typeof val);
+// 基于 in 与 instanceof 的类型保护
+class FooBase {}
+
+class BarBase {}
+
+class Foo extends FooBase {
+  fooOnly() {}
+}
+class Bar extends BarBase {
+  barOnly() {}
+}
+
+function handle(input: Foo | Bar) {
+  if (input instanceof FooBase) {
+    input.fooOnly();
+  } else {
+    input.barOnly();
+  }
+}
+
+// 类型断言守卫 assert
+
