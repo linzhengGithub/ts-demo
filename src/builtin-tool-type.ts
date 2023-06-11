@@ -74,6 +74,7 @@ interface Foo {
   name: string
   age: number
   address: string
+  title: null
 }
 
 type PickedFoo = _Pick<Foo, 'address'>
@@ -106,3 +107,44 @@ type SetB = 0 | 1 | 2 | 4;
 type AExcludeB = Exclude_1<SetA, SetB>; // 3 | 5
 type BExcludeA = Exclude_1<SetB, SetA>; // 0 | 4
 
+// 并集
+export type Concurrence<A, B> = A | B;
+
+// 交集
+export type Intersection<A, B> = A extends B ? A : never;
+
+// 差集
+export type Difference<A, B> = A extends B ? never : A;
+
+// 补集
+export type Complement<A, B extends A> = Difference<A, B>;
+
+// 类型工具, 它用于从给定类型T中移除null和undefined类型。
+type NonNullable<T> = T extends null | undefined ? never : T;
+
+type _NonNullable<T> = Difference<T, null | undefined>
+
+
+// 模式匹配工具类型
+// infer 类型推断,它推断出来的是一个类型/字面量类型
+type FunctionType = (...args: any) => any;
+type FirstParameter<T extends FunctionType> = T extends (
+  arg: infer P,
+  ...args: any
+) => any
+  ? P
+  : never;
+
+type MyFunction = (a: number, b: string) => boolean;
+type testFunction = FirstParameter<MyFunction>
+
+type Parameters<T extends FunctionType> = T extends (...args: infer P) => any ? P : never;
+type testParamters = Parameters<MyFunction>
+
+function test_2(a: number, b: string): testParamters {
+  return [a, b]
+}
+
+type FirstArrayItemType<T extends any[]> = T extends [infer P, ...any[]] ? P extends string ? P : never : never;
+type FirstArrayItemType_1<T extends any[]> = T extends [infer P extends string, ...any[]] ? P : never;
+type Tmp2 = FirstArrayItemType<['linbudu', 599]>; // 'linbudu'
