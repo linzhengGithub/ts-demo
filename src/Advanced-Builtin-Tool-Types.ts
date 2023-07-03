@@ -1,3 +1,4 @@
+import { expectType } from 'tsd';
 // 高级内置工具类型
 
 // 属性修饰进阶
@@ -37,4 +38,60 @@ type Nullable<T> = T | null;
 type DeepNullable<T extends object> = {
   [K in keyof T]: T[K] extends object ? DeepNullable<T[K]> : Nullable<T[K]>;
 };
+
+// 结构工具类型进阶
+// 基于键值类型的 Pick 与 Omit
+// 子结构的互斥处理
+type FuncStruct = (...args: any[]) => any;
+type ExpectedPropKeys<T extends object, ValueType> = {
+  [Key in keyof T]-?: T[Key] extends ValueType ? Key : never;
+}[keyof T];
+
+type FunctionKeys<T extends object> = ExpectedPropKeys<T, FuncStruct>;
+
+expectType<
+  FunctionKeys<{
+    foo: () => void;
+    bar: () => number;
+    baz: number;
+  }>
+>('foo');
+
+// 约束类型 在 ValueType 中
+export type PickByValueType<T extends object, ValueType> = Pick<
+  T,
+  ExpectedPropKeys<T, ValueType>
+>;
+
+expectType<PickByValueType<{ foo: string; bar: number }, string>>({
+  foo: 'dsa',
+});
+
+expectType<
+  PickByValueType<{ foo: string; bar: number; baz: boolean }, string | number>
+>({
+  foo: 'linbudu',
+  bar: 599,
+});
+
+// 输入类型 要 排除 ValueType
+type FilteredPropKeys<T extends object, ValueType> = {
+  [Key in keyof T]-?: T[Key] extends ValueType ? never : Key;
+}[keyof T];
+
+export type OmitByValueType<T extends object, ValueType> = Pick<
+  T,
+  FilteredPropKeys<T, ValueType>
+>;
+
+expectType<OmitByValueType<{ foo: string; bar: number }, string>
+>({
+  bar: 321,
+});
+
+expectType<
+  OmitByValueType<{ foo: string; bar: number; baz: boolean }, string | number>
+>({
+  baz: true,
+});
 
